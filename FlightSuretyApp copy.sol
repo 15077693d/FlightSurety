@@ -4,12 +4,14 @@ pragma solidity ^0.4.25;
 // OpenZeppelin's SafeMath library, when used correctly, protects agains such bugs
 // More info: https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2018/november/smart-contract-insecurity-bad-arithmetic/
 import "./FlightSuretyData.sol";
+import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
+
 
 /************************************************** */
 /* FlightSurety Smart Contract                      */
 /************************************************** */
 contract FlightSuretyApp {
-
+    using SafeMath for uint256; // Allow SafeMath functions to be called for all uint256 types (similar to "prototype" in Javascript)
 
     /********************************************************************************************/
     /*                                       DATA VARIABLES                                     */
@@ -22,9 +24,7 @@ contract FlightSuretyApp {
     uint8 private constant STATUS_CODE_LATE_WEATHER = 30;
     uint8 private constant STATUS_CODE_LATE_TECHNICAL = 40;
     uint8 private constant STATUS_CODE_LATE_OTHER = 50;
-    mapping(address=>uint256) public registratingAirlinesVoteCount;
-    mapping(address=>uint256) public registratedAirlinesEther;
-    mapping(address=>mapping(address=>bool)) public registratingAirlinesVoteAddress;
+
     address private contractOwner;          // Account used to deploy contract
     FlightSuretyData private flightSuretyData;
     struct Flight {
@@ -63,27 +63,7 @@ contract FlightSuretyApp {
         require(msg.sender == contractOwner, "Caller is not contract owner");
         _;
     }
-    
-    /**
-    * @dev Modifier that requires the "airlineAddress" account to be the function caller
-    */
-    modifier requireAirline()
-    {
-        require(flightSuretyData.isAirline(msg.sender), "Caller is not airline");   
-        _;
-    }
-    
-     /**
-    * @dev Modifier that requires the first account should be payable 10 ether
-    */
-    modifier require10Ether()
-    {
-        require(registratedAirlinesEther[msg.sender]>=10 ether, "Not enough fund");      
-        _;
-    }
-    
-    
-   
+
     /********************************************************************************************/
     /*                                       CONSTRUCTOR                                        */
     /********************************************************************************************/
@@ -94,14 +74,11 @@ contract FlightSuretyApp {
     */
     constructor
                                 (
-                                    address dataAddress,
-                                    address airlineAddress
+                                    address dataAddress
                                 ) 
-                                payable
                                 public 
     {
         flightSuretyData = FlightSuretyData(dataAddress);
-        flightSuretyData.registerAirline(airlineAddress);
         contractOwner = msg.sender;
     }
 
@@ -120,20 +97,7 @@ contract FlightSuretyApp {
     /********************************************************************************************/
     /*                                     SMART CONTRACT FUNCTIONS                             */
     /********************************************************************************************/
-    
-    /**
-    * @dev airline add money 
-    *
-    */ 
-    function addEther
-                    (    
-                    
-                    )
-                    external
-                    payable
-    {
-        registratedAirlinesEther[msg.sender] = msg.value;
-    }
+
   
    /**
     * @dev Add an airline to the registration queue
@@ -144,24 +108,10 @@ contract FlightSuretyApp {
                                 address newAirline
                             )
                             external
-                            requireAirline
                             returns(bool success, uint256 votes)
     {
-        success = true;
-        if(flightSuretyData.airlineCount()<5){
-            flightSuretyData.registerAirline(newAirline);  
-            registratingAirlinesVoteCount[newAirline]+=1;
-        }else{
-            if(registratingAirlinesVoteCount[newAirline]*2 >= flightSuretyData.airlineCount()){
-            flightSuretyData.registerAirline(newAirline);   
-        }else{
-            require(registratingAirlinesVoteAddress[newAirline][msg.sender]==false,"airline did vote");
-            registratingAirlinesVoteCount[newAirline]+=1;
-            registratingAirlinesVoteAddress[newAirline][msg.sender]=true;
-            success = false;
-        }   
-        }
-        return (success, registratingAirlinesVoteCount[newAirline]);
+        flightSuretyData.registerAirline(newAirline);
+        return (success, 0);
     }
 
 
@@ -171,20 +121,11 @@ contract FlightSuretyApp {
     */  
     function registerFlight
                                 (
-                                    uint8 statusCode,
-                                    uint256 updatedTimestamp,
-                                    address airline,
-                                    bytes32 flightNo
+
                                 )
                                 external
-                                require10Ether
+                                pure
     {   
-        flights[flightNo] = Flight(
-                                        false,
-                                        statusCode,
-                                        updatedTimestamp,       
-                                        airline
-                                    );
     }
     
    /**
@@ -199,7 +140,7 @@ contract FlightSuretyApp {
                                     uint8 statusCode
                                 )
                                 internal
-                                require10Ether
+                                pure
     {
     }
 
@@ -212,7 +153,6 @@ contract FlightSuretyApp {
                             uint256 timestamp                            
                         )
                         external
-                        require10Ether
     {
         uint8 index = getRandomIndex(msg.sender);
 

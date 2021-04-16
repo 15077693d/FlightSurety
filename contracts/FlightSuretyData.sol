@@ -1,9 +1,8 @@
 pragma solidity ^0.4.25;
 
-import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 contract FlightSuretyData {
-    using SafeMath for uint256;
+
 
     /********************************************************************************************/
     /*                                       DATA VARIABLES                                     */
@@ -11,7 +10,11 @@ contract FlightSuretyData {
 
     address private contractOwner;                                      // Account used to deploy contract
     bool private operational = true;                                    // Blocks all state changes throughout the contract if false
-
+    mapping(address=>bool) public airlines;
+    uint256 public airlineCount = 0;
+    mapping(bytes32=>address[]) public clientBuyAddress;
+    mapping(bytes32=>mapping(address=>uint256)) public clientBuy;
+    mapping(address=>uint256) public clientWithdraw;
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
@@ -53,6 +56,15 @@ contract FlightSuretyData {
     modifier requireContractOwner()
     {
         require(msg.sender == contractOwner, "Caller is not contract owner");
+        _;
+    }
+    
+    /**
+    * @dev Modifier that requires the airline did not do registration
+    */
+     modifier requireNoRegistration(address airline)
+    {
+        require(airlines[airline]==false, "airline did registration");
         _;
     }
 
@@ -99,11 +111,14 @@ contract FlightSuretyData {
     *
     */   
     function registerAirline
-                            (   
+                            (  
+                                address newAirline 
                             )
                             external
-                            pure
+                            requireNoRegistration(newAirline)
     {
+        airlines[newAirline]=true;
+        airlineCount+=1;
     }
 
 
@@ -112,23 +127,42 @@ contract FlightSuretyData {
     *
     */   
     function buy
-                            (                             
+                            (      
+                                bytes32 flightNo
                             )
                             external
                             payable
     {
-
+       clientBuy[flightNo][msg.sender]=msg.value;
+       clientBuyAddress[flightNo].push(msg.sender);
     }
 
+    /**
+     *  @dev client withdraw 
+    */
+    function withdraw
+                                (
+                                    
+                                )
+                                external
+    {
+        msg.sender.transfer(clientWithdraw[msg.sender]);
+    }
+    
     /**
      *  @dev Credits payouts to insurees
     */
     function creditInsurees
                                 (
+                                    bytes32 flightNo
                                 )
                                 external
-                                pure
     {
+        for(uint256 i=0; i < clientBuyAddress[flightNo].length ; i++){
+            address clientAddress = clientBuyAddress[flightNo][i];
+            clientWithdraw[clientAddress]+=clientBuy[flightNo][clientAddress];
+        }
+        delete clientBuyAddress[flightNo];
     }
     
 
@@ -138,10 +172,15 @@ contract FlightSuretyData {
     */
     function pay
                             (
+                                bytes32 flightNo
                             )
                             external
-                            pure
     {
+         for(uint256 i=0; i < clientBuyAddress[flightNo].length ; i++){
+            address clientAddress = clientBuyAddress[flightNo][i];
+            clientWithdraw[clientAddress]+=clientBuy[flightNo][clientAddress]*3/2;
+        }
+        delete clientBuyAddress[flightNo];
     }
 
    /**
@@ -168,6 +207,16 @@ contract FlightSuretyData {
                         returns(bytes32) 
     {
         return keccak256(abi.encodePacked(airline, flight, timestamp));
+    }
+
+    function isAirline
+                      (
+                          address airline
+                      )
+                      external
+                      returns(bool)
+    {
+        return airlines[airline];
     }
 
     /**
