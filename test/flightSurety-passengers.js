@@ -20,15 +20,32 @@ contract('Flight Surety Tests(passengers)', async (accounts) => {
     it("Passengers may pay up to 1 ether for purchasing flight insurance. 2", async () => {
         let flag = true
         try{
-          await config.flightSuretyData.buy("abc1234",{from:config.testAddresses[4],value:1000000000})  
+          console.log(await web3.eth.getBalance( config.flightSuretyData.address))
+          await config.flightSuretyData.buy("abc1234",{from:config.testAddresses[4],value:100000000})  
         }catch(error){
             console.log(error)
             flag = false
         }
-        assert.equal(await web3.eth.getBalance( config.flightSuretyData.address),1000000000,"Passengers cannot pay 1 ether")
+        assert.equal(await web3.eth.getBalance( config.flightSuretyData.address),100000000,"Passengers cannot pay 1 ether")
     })
 
     it("If flight is delayed due to airline fault, passenger receives credit of 1.5X the amount they paid", async () => {
-        
+        await config.flightSuretyData.pay("abc1234")
+        let actual = await config.flightSuretyData.clientWithdraw.call(config.testAddresses[4]) 
+        console.log(actual.toString())
+        assert.equal(actual,100000000*1.5,"Passenger should receives credit of 1.5X")
+    })
+
+    it("Passenger can withdraw any funds owed to them as a result of receiving credit for insurance payout", async () => {
+        await config.flightSuretyData.fund({from: accounts[0], value:50000000})
+        let first = await web3.eth.getBalance( config.testAddresses[4])
+        let actual2 = await config.flightSuretyData.clientWithdraw.call(config.testAddresses[4]) 
+        console.log(actual2.toString(), await web3.eth.getBalance( await config.flightSuretyData.address))
+        await config.flightSuretyData.withdraw({from: config.testAddresses[4]}) 
+        let last = await web3.eth.getBalance( config.testAddresses[4])
+        console.log(first)
+        console.log(last)
+        // let actual = last.toNumber() - first.toNumber()
+        assert.equal(actual,100000000*1.5)
     })
 })
