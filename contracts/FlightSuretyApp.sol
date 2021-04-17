@@ -33,7 +33,7 @@ contract FlightSuretyApp {
         uint256 updatedTimestamp;        
         address airline;
     }
-    mapping(bytes32 => Flight) private flights;
+    mapping(string => Flight) private flights;
 
  
     /********************************************************************************************/
@@ -148,19 +148,19 @@ contract FlightSuretyApp {
                             returns(bool success, uint256 votes)
     {
         success = true;
-        if(flightSuretyData.airlineCount()<5){
+        require(registratingAirlinesVoteAddress[newAirline][msg.sender]==false,"airline did vote");
+        if(flightSuretyData.airlineCount()<4){
             flightSuretyData.registerAirline(newAirline);  
             registratingAirlinesVoteCount[newAirline]+=1;
         }else{
             if(registratingAirlinesVoteCount[newAirline]*2 >= flightSuretyData.airlineCount()){
             flightSuretyData.registerAirline(newAirline);   
         }else{
-            require(registratingAirlinesVoteAddress[newAirline][msg.sender]==false,"airline did vote");
             registratingAirlinesVoteCount[newAirline]+=1;
-            registratingAirlinesVoteAddress[newAirline][msg.sender]=true;
             success = false;
         }   
         }
+        registratingAirlinesVoteAddress[newAirline][msg.sender]=true;
         return (success, registratingAirlinesVoteCount[newAirline]);
     }
 
@@ -171,19 +171,17 @@ contract FlightSuretyApp {
     */  
     function registerFlight
                                 (
-                                    uint8 statusCode,
                                     uint256 updatedTimestamp,
-                                    address airline,
-                                    bytes32 flightNo
+                                    string flight
                                 )
                                 external
                                 require10Ether
     {   
-        flights[flightNo] = Flight(
+        flights[flight] = Flight(
                                         false,
-                                        statusCode,
+                                        STATUS_CODE_UNKNOWN,
                                         updatedTimestamp,       
-                                        airline
+                                        msg.sender
                                     );
     }
     

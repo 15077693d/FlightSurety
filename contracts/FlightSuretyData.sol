@@ -133,6 +133,7 @@ contract FlightSuretyData {
                             external
                             payable
     {
+        require(msg.value>0 && msg.value<=1,"Payment is not between 0 - 1");
        clientBuy[flightNo][msg.sender]=msg.value;
        clientBuyAddress[flightNo].push(msg.sender);
     }
