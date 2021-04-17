@@ -131,7 +131,8 @@ contract FlightSuretyApp {
                     )
                     external
                     payable
-    {
+    {   
+        flightSuretyData.fund.value(msg.value)();
         registratedAirlinesEther[msg.sender] = msg.value;
     }
   

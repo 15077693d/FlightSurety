@@ -12,8 +12,8 @@ contract FlightSuretyData {
     bool private operational = true;                                    // Blocks all state changes throughout the contract if false
     mapping(address=>bool) public airlines;
     uint256 public airlineCount = 0;
-    mapping(bytes32=>address[]) public clientBuyAddress;
-    mapping(bytes32=>mapping(address=>uint256)) public clientBuy;
+    mapping(string=>address[]) private  clientBuyAddress;
+    mapping(string=>mapping(address=>uint256)) private  clientBuy;
     mapping(address=>uint256) public clientWithdraw;
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
@@ -128,14 +128,14 @@ contract FlightSuretyData {
     */   
     function buy
                             (      
-                                bytes32 flightNo
+                                string flight
                             )
                             external
                             payable
     {
-        require(msg.value>0 && msg.value<=1,"Payment is not between 0 - 1");
-       clientBuy[flightNo][msg.sender]=msg.value;
-       clientBuyAddress[flightNo].push(msg.sender);
+        require(msg.value>0 && msg.value<=1 ether,"Payment is not between 0 - 1");
+       clientBuy[flight][msg.sender]=msg.value;
+       clientBuyAddress[flight].push(msg.sender);
     }
 
     /**
@@ -155,15 +155,15 @@ contract FlightSuretyData {
     */
     function creditInsurees
                                 (
-                                    bytes32 flightNo
+                                    string flight
                                 )
                                 external
     {
-        for(uint256 i=0; i < clientBuyAddress[flightNo].length ; i++){
-            address clientAddress = clientBuyAddress[flightNo][i];
-            clientWithdraw[clientAddress]+=clientBuy[flightNo][clientAddress];
+        for(uint256 i=0; i < clientBuyAddress[flight].length ; i++){
+            address clientAddress = clientBuyAddress[flight][i];
+            clientWithdraw[clientAddress]+=clientBuy[flight][clientAddress];
         }
-        delete clientBuyAddress[flightNo];
+        delete clientBuyAddress[flight];
     }
     
 
@@ -173,15 +173,15 @@ contract FlightSuretyData {
     */
     function pay
                             (
-                                bytes32 flightNo
+                                string flight
                             )
                             external
     {
-         for(uint256 i=0; i < clientBuyAddress[flightNo].length ; i++){
-            address clientAddress = clientBuyAddress[flightNo][i];
-            clientWithdraw[clientAddress]+=clientBuy[flightNo][clientAddress]*3/2;
+         for(uint256 i=0; i < clientBuyAddress[flight].length ; i++){
+            address clientAddress = clientBuyAddress[flight][i];
+            clientWithdraw[clientAddress]+=clientBuy[flight][clientAddress]*3/2;
         }
-        delete clientBuyAddress[flightNo];
+        delete clientBuyAddress[flight];
     }
 
    /**

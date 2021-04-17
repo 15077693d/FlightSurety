@@ -2,7 +2,7 @@
 var Test = require('../config/testConfig.js');
 var BigNumber = require('bignumber.js');
 
-contract('Flight Surety Tests', async (accounts) => {
+contract('Flight Surety Tests(airlines)', async (accounts) => {
 
     var config;
     before('setup contract', async () => {
@@ -97,7 +97,7 @@ contract('Flight Surety Tests', async (accounts) => {
 
     });
 
-    it("Registration of fifth and subsequent airlines requires multi-party consensus of 50% of registered airlines", async () => {
+    it("Registration of fifth and subsequent airlines requires multi-party consensus of 50% of registered airlines 1", async () => {
         // ARRANGE
         let newAirline3 = accounts[2];
         let newAirline4 = accounts[3];
@@ -106,8 +106,8 @@ contract('Flight Surety Tests', async (accounts) => {
         // ACT
         try {
             await config.flightSuretyApp.registerAirline(newAirline3, { from: config.firstAirline });
-            await config.flightSuretyApp.registerAirline(newAirline4, { from: newAirline3 });
-            await config.flightSuretyApp.registerAirline(newAirline5, { from: newAirline4 });
+            await config.flightSuretyApp.registerAirline(newAirline4, { from: config.firstAirline });
+            await config.flightSuretyApp.registerAirline(newAirline5, { from: config.firstAirline });
 
         }
         catch (e) {
@@ -118,45 +118,52 @@ contract('Flight Surety Tests', async (accounts) => {
 
         // ASSERT
         assert.equal(result1, false, "Airline requires multi-party consensus of 50% ");
+    })
 
-        // ACT
-        try {
-            await config.flightSuretyApp.registerAirline(newAirline5, { from: config.firstAirline });
-            await config.flightSuretyApp.registerAirline(newAirline5, { from: newAirline3 });
-            await config.flightSuretyApp.registerAirline(newAirline5, { from: newAirline4 });
+    it("Registration of fifth and subsequent airlines requires multi-party consensus of 50% of registered airlines 2", async () => {
+        // ARRANGE
+        let newAirline = accounts[5];
 
+         // ACT
+         try {
+            await config.flightSuretyApp.registerAirline(newAirline, { from: config.testAddresses[0]});
+            await config.flightSuretyApp.registerAirline(newAirline, { from: config.testAddresses[1]});
+            await config.flightSuretyApp.registerAirline(newAirline, { from: config.testAddresses[3] });
         }
         catch (e) {
             console.log(e)
         }
 
-        let result2 = await config.flightSuretyData.isAirline.call(newAirline5);
+        let result2 = await config.flightSuretyData.isAirline.call(newAirline);
 
         // ASSERT
         assert.equal(result2, true, "Airline can be reg by multi-party consensus of 50% ");
     })
 
-    it("Airline can be registered, but does not participate in contract until it submits funding of 10 ether", async () => {
+    it("Airline can be registered, but does not participate in contract until it submits funding of 10 ether 1", async () => {
         let airline = accounts[0]
         let result = false
         try {
             await config.flightSuretyApp.registerFlight(12345, "abc123",{from:accounts[0]})
         } catch (error) {
-            console.log("1!!!!")
-            console.log(error)
+            // console.log(error)
             result = true
         }
         assert.equal(result, true, "Airline should not ex function after add 10 ether ");
+    })
 
+    it("Airline can be registered, but does not participate in contract until it submits funding of 10 ether 2", async () => {
+        let airline = accounts[1]
+        let result = false
         try {
-            await config.flightSuretyApp.addEther({from:accounts[0], value:10000000000000000000})
-            await config.flightSuretyApp.registerFlight(12345, "abc123",{from:accounts[0]})
+            await config.flightSuretyApp.addEther({from:accounts[1], value:10000000000000000000})
+            await config.flightSuretyApp.registerFlight(12345, "abc123",{from:accounts[1]})
+            result = true
         } catch (error) {
             console.log("2!!!!!")
             console.log(error)
-            result = false
         }
         assert.equal(result, true, "Airline should ex function after add 10 ether ");
     })
-
+    
 });
