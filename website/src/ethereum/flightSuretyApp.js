@@ -9,19 +9,37 @@ const registerAirline = async (newAirline) => {
 }
 
 const getFlight = async () => {
+    const status = {
+                "0":"UNKNOWN",
+        "10":"ON_TIME",
+        "20":"LATE_AIRLINE",
+        "30":"LATE_WEATHER",
+        "40":"LATE_TECHNICAL",
+        "50":"LATE_OTHER",
+    }
     const count = await FlightSuretyApp.methods.flightCount().call()
-    console.log(count)
     const namePromises = []
     for (let i=0;i<Number(count);i++){
-        namePromises.push(FlightSuretyApp.methods.getFlight(i).call())
+        namePromises.push(FlightSuretyApp.methods.flightNames(i).call())
     }
     const names = await Promise.all(namePromises)
     const flightPromises = []
     for (let i=0;i<names.length;i++){
         flightPromises.push(FlightSuretyApp.methods.getFlight(names[i]).call())
     }
-    const flights = await Promise.all(flightPromises)
+    const _flights = await Promise.all(flightPromises)
+    let flights = []
+    for (let i=0; i<_flights.length;i++){
+        flights.push({
+            isRegistered:_flights[i][0],
+            name: names[i],
+            statusCode:_flights[i][0]==false?"CANCELLED":status[_flights[i][1]],
+            updatedTimestamp:_flights[i][2],
+            airline:_flights[i][3]
+        })
+    }
     console.log(flights)
+    return flights
 }
 
 const addFlight = async (flightName, timestamp) => {
@@ -38,4 +56,12 @@ const fundAirline = async (ether) => {
         }
     )
 }
-export { registerAirline, fundAirline ,getFlight, addFlight}
+
+const removeFlight = async (flight) => {
+    await FlightSuretyApp.methods.removeFlight(flight).send(
+        {
+            from: await getAccount(),
+        }
+    )
+}
+export { registerAirline, fundAirline ,getFlight, addFlight, removeFlight}

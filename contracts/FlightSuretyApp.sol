@@ -174,6 +174,21 @@ contract FlightSuretyApp {
         return (success, registratingAirlinesVoteCount[newAirline]);
     }
 
+    /**
+    * @dev Register a future flight for insuring.
+    *
+    */  
+    function removeFlight
+                                (
+                                    string flight
+                                )
+                                external
+                                require10Ether
+    {   
+        flights[flight].isRegistered =false;
+        flightSuretyData.creditInsurees(flight);
+    }
+
 
    /**
     * @dev Register a future flight for insuring.
@@ -188,7 +203,7 @@ contract FlightSuretyApp {
                                 require10Ether
     {   
         flights[flight] = Flight(
-                                        false,
+                                        true,
                                         STATUS_CODE_UNKNOWN,
                                         updatedTimestamp,       
                                         msg.sender

@@ -1,5 +1,7 @@
 import Line from "./components/Line";
+import React, { useState, useEffect } from 'react';
 import {AirlineTable, PassengersTable} from './components/Table'
+import { getFlight } from './ethereum/flightSuretyApp';
 /*
 Airline
  1. show and set operational (Operational Setup)
@@ -13,12 +15,16 @@ Passengers
  3. check Flight Status
 */
 function App() {
-  
+  const [flights, setFlights] = useState([])
+  const [refreshFlight, setRefreshFlight] = useState(null)
+  useEffect(async () => {
+    setFlights(await getFlight())
+  }, [refreshFlight])
   return (
     <div className="App">
      <h1 style={{textAlign:"center"}}>FlightSurety</h1>
      <Line/>
-     <AirlineTable/>
+     <AirlineTable setRefreshFlight={setRefreshFlight} flights={flights}/>
      <Line/>
      <PassengersTable/>
     </div>

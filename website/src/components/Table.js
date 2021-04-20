@@ -3,7 +3,6 @@ import styled from 'styled-components'
 import { OperationalSetup, AirlineRegistration, FlightRegistration, FlightCancel, InsuranceRepayment } from './AirlineRow';
 import { BuyInsurane, MoneyWithdraw } from './PassengersRow';
 import {getAirlines} from '../ethereum/flightSuretyData'
-import { getFlight } from '../ethereum/flightSuretyApp';
 
 const Table = styled.table`
     margin:auto;
@@ -49,21 +48,19 @@ const TableHead = ({ name }) => {
     );
 };
 
-const AirlineTable = () => {
+const AirlineTable = ({setRefreshFlight, flights}) => {
     const [airlines, setAirlines] = useState(null)
-    const [flights, setFlight] = useState(null)
     const [refresh, setRefresh] = useState(null)
     useEffect(async () => {
         setAirlines(await getAirlines())
-        setFlight(await getFlight())
     }, [refresh])
     return (
         <Table width="700px" margin="50px" padding="8px">
             <TableHead name={"Airline broad"} />
             <OperationalSetup />
             <AirlineRegistration airlines={airlines} setRefresh={setRefresh}/>
-            <FlightRegistration flights={flights} setRefresh={setRefresh}/>
-            <FlightCancel setRefresh={setRefresh}/>
+            <FlightRegistration flights={flights} setRefreshFlight={setRefreshFlight}/>
+            <FlightCancel flights={flights} setRefreshFlight={setRefreshFlight}/>
             <InsuranceRepayment setRefresh={setRefresh}/>
         </Table>
     );

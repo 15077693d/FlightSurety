@@ -3,8 +3,8 @@ import FlightSuretyAppJson from './contracts/FlightSuretyApp.json'
 import FlightSuretyDataJson from './contracts/FlightSuretyData.json'
 let web3;
 
-let flightSuretyAppAddress = "0x5163EfC01dbAf1240133d5B949555bBD6901bcFf"
-let flightSuretyDataAddress = "0x2296F9Eb5105517ecf8c0aE03236462e4d506f0F"
+let flightSuretyAppAddress = "0x096cDF35803b744113E93a3D2FdBfF77ABFF63a8"
+let flightSuretyDataAddress = "0x10dc8DE1491A1634Af74A48A669BE2Da94690Ede"
 
 if (typeof window !== "undefined" && typeof window.web3 !== "undefined") {
     // We are in the browser and metamask is running
