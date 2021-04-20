@@ -11,6 +11,7 @@ contract FlightSuretyData {
     address private contractOwner;                                      // Account used to deploy contract
     bool private operational = true;                                    // Blocks all state changes throughout the contract if false
     mapping(address=>bool) public airlines;
+    address[] public airlineList;
     uint256 public airlineCount = 0;
     mapping(string=>address[]) private  clientBuyAddress;
     mapping(string=>mapping(address=>uint256)) private  clientBuy;
@@ -72,6 +73,13 @@ contract FlightSuretyData {
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
 
+    function getContractOwner()
+                                public 
+                                returns(address)
+    {
+        return contractOwner;
+    } 
+
     /**
     * @dev Get operating status of contract
     *
@@ -118,6 +126,7 @@ contract FlightSuretyData {
                             requireNoRegistration(newAirline)
     {
         airlines[newAirline]=true;
+        airlineList.push(newAirline);
         airlineCount+=1;
     }
 

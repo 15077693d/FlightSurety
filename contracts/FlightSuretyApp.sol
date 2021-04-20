@@ -34,6 +34,8 @@ contract FlightSuretyApp {
         address airline;
     }
     mapping(string => Flight) private flights;
+    string[] public flightNames;
+    uint8 public flightCount = 0;
 
  
     /********************************************************************************************/
@@ -51,7 +53,7 @@ contract FlightSuretyApp {
     modifier requireIsOperational() 
     {
          // Modify to call data contract's status
-        require(true, "Contract is currently not operational");  
+        require(flightSuretyData.isOperational() ==true, "Contract is currently not operational");  
         _;  // All modifiers require an "_" which indicates where the function body will be added
     }
 
@@ -109,12 +111,19 @@ contract FlightSuretyApp {
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
 
+    function getFlight(string flight)
+                            public
+                            returns(bool,uint8,uint256,address)
+    {
+        return  (flights[flight].isRegistered,flights[flight].statusCode,flights[flight].updatedTimestamp,flights[flight].airline);
+    }
+
     function isOperational() 
                             public 
-                            pure 
+
                             returns(bool) 
     {
-        return true;  // Modify to call data contract's status
+        return flightSuretyData.isOperational();  // Modify to call data contract's status
     }
 
     /********************************************************************************************/
@@ -133,7 +142,7 @@ contract FlightSuretyApp {
                     payable
     {   
         flightSuretyData.fund.value(msg.value)();
-        registratedAirlinesEther[msg.sender] = msg.value;
+        registratedAirlinesEther[msg.sender] += msg.value;
     }
   
    /**
@@ -184,6 +193,8 @@ contract FlightSuretyApp {
                                         updatedTimestamp,       
                                         msg.sender
                                     );
+        flightNames.push(flight);
+        flightCount+=1;
     }
     
    /**
@@ -198,7 +209,6 @@ contract FlightSuretyApp {
                                     uint8 statusCode
                                 )
                                 internal
-                                require10Ether
     {
     }
 
@@ -211,7 +221,6 @@ contract FlightSuretyApp {
                             uint256 timestamp                            
                         )
                         external
-                        require10Ether
     {
         uint8 index = getRandomIndex(msg.sender);
 

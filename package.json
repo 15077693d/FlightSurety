@@ -1,26 +1,6 @@
 {
-  "name": "flightsurety",
-  "version": "1.0.0",
-  "description": "",
-  "directories": {
-    "test": "test"
-  },
-  "repository": "https://github.com/techbubble/flightsurety",
-  "license": "MIT",
-  "scripts": {
-    "test": "truffle test ./test/flightSurety.js",
-    "dapp": "webpack-dev-server --mode development --config webpack.config.dapp.js",
-    "dapp:prod": "webpack --mode production  --config webpack.config.dapp.js",
-    "server": "rm -rf ./build/server && webpack --config webpack.config.server.js"
-  },
-  "author": "Nik Kalyani <nik@kalyani.com> https://www.kalyani.com",
-  "devDependencies": {
-    "bignumber.js": "8.0.2",
-    "openzeppelin-solidity": "^1.10.0",
-    "truffle": "5.0.2",
-    "truffle-hdwallet-provider": "1.0.2"
-  },
   "dependencies": {
-    "@truffle/hdwallet-provider": "^1.2.6"
+    "bignumber.js": "^9.0.1",
+    "truffle-hdwallet-provider": "^1.0.17"
   }
 }

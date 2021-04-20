@@ -1,5 +1,5 @@
 import Line from "./components/Line";
-
+import {AirlineTable, PassengersTable} from './components/Table'
 /*
 Airline
  1. show and set operational (Operational Setup)
@@ -13,10 +13,14 @@ Passengers
  3. check Flight Status
 */
 function App() {
+  
   return (
     <div className="App">
-     <h1>FlightSurety</h1>
-     <Line></Line>
+     <h1 style={{textAlign:"center"}}>FlightSurety</h1>
+     <Line/>
+     <AirlineTable/>
+     <Line/>
+     <PassengersTable/>
     </div>
   );
 }
