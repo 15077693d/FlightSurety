@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { buyInsurane } from '../ethereum/flightSuretyApp';
+import { getAccount } from '../ethereum/web3';
 import { Table } from './Table';
 /*
 Passengers
@@ -36,7 +38,34 @@ const MoneyWithdraw = () => {
         </tr>)
 }
 
-const BuyInsurane = () => {
+const BuyInsurane = ({ flights, setRefreshFlight }) => {
+    const [flight, setFlight] = useState("")
+    const [ether, setEther] = useState("")
+    const [account, setAccount] = useState(null)
+    const handleClick = async () => {
+        if (flight !== "" & ether !== "") {
+            await buyInsurane(flight, ether)
+            setFlight("")
+            setEther("")
+            setRefreshFlight(new Date())
+        }
+    }
+    useEffect(async () => {
+        setAccount(await getAccount())
+    }, [])
+    let _flights = [] 
+    flights.forEach(_flight => {
+            let addresses = _flight.clients.map(_client => _client.address)
+            console.log(addresses)
+            if (addresses.includes(account)) {
+                _flights.push(_flight) 
+            } 
+        })
+       
+    console.log(_flights, account)
+    // if(_flights.length>0){
+    //     console.log(_flights[0]['clients'][0]["address"], account)
+    // }
     return (
         <tr>
             <td>
@@ -47,30 +76,40 @@ const BuyInsurane = () => {
             <br />
                 <br />
                 <Table>
-                <tr>
-                <th>Flight name</th>
-                <th>Ether</th>
-                <th>Status</th>
-                </tr>
                     <tr>
-                        <td>abc123</td>
-                        <td>0.5</td>
-                        <td>UNKNOWN</td>
+                        <th>Flight name</th>
+                        <th>Ether</th>
+                        <th>Status</th>
                     </tr>
+                    {
+                        _flights.map(
+                            __flight =>
+                                <tr>
+                                    <td>{__flight["name"]}</td>
+                                    <td>{__flight['clients'].filter(_client => _client["address"] === account)[0]['amount']}</td>
+                                    <td>{__flight["statusCode"]}</td>
+                                </tr>
+                        )
+                    }
                 </Table>
             </td>
             <td>
-                Flight Name. :
-        <select>
-                    <option value="abc123">abc123</option>
+                Flight Name :
+        <select onChange={(e) => setFlight(e.target.value)}>
+                    <option value="">Available flight</option>
+                    {
+                        flights.filter(_flight => _flight["isRegistered"] === true & _flight["statusCode"] == "UNKNOWN" & _flight["repayment"] === false).map(
+                            _flight => <option key={_flight.name} value={_flight.name}>{_flight.name}</option>
+                        )
+                    }
                 </select>
                 <br />
                 <br />
         Amount :
-        <input type="number" placeholder="Ether" />
+        <input type="number" placeholder="Ether" onChange={(e) => setEther(e.target.value)} />
             </td>
             <td>
-                <button>
+                <button onClick={handleClick}>
                     submit
         </button>
             </td>

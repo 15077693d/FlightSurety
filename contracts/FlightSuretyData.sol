@@ -73,6 +73,28 @@ contract FlightSuretyData {
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
 
+    function getClientByFlight(
+                                
+                                uint256 index,
+                                string flight
+                                )
+                                public
+                                returns(address)
+    {
+        return clientBuyAddress[flight][index];
+    }
+
+    function getClientBuyAmount(
+                                
+                                string flight,
+                                address client
+                                )
+                                public
+                                returns(uint256)
+    {
+        return clientBuy[flight][client];
+    }
+
     function getContractOwner()
                                 public 
                                 returns(address)
@@ -137,14 +159,15 @@ contract FlightSuretyData {
     */   
     function buy
                             (      
-                                string flight
+                                string flight,
+                                address client
                             )
                             external
                             payable
     {
         require(msg.value>0 && msg.value<=1 ether,"Payment is not between 0 - 1");
-       clientBuy[flight][msg.sender]=msg.value;
-       clientBuyAddress[flight].push(msg.sender);
+       clientBuy[flight][client]=msg.value;
+       clientBuyAddress[flight].push(client);
     }
 
     /**
@@ -152,11 +175,11 @@ contract FlightSuretyData {
     */
     function withdraw
                                 (
-                                    
+                                    address client
                                 )
                                 external
     {
-        msg.sender.transfer(clientWithdraw[msg.sender]);
+        client.transfer(clientWithdraw[client]);
     }
     
     /**

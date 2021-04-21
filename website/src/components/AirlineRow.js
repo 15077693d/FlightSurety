@@ -4,27 +4,28 @@ import {
   registerAirline,
   fundAirline,
   addFlight,
-  removeFlight
+  removeFlight,
+  repayClient
 } from '../ethereum/flightSuretyApp'
 import {
   getOperationStatus,
   setOperationStatus,
 } from '../ethereum/flightSuretyData'
-const AirlineRegistration = ({ airlines, setRefresh }) => {
+const AirlineRegistration = ({ airlines, setRefreshAirlines }) => {
   const [address, setAddress] = useState(null)
   const [ether, setEther] = useState(null)
   const handleClickRegister = async () => {
     if ((address !== '') & (address !== null)) {
       await registerAirline(address)
-      setRefresh(address)
+      setRefreshAirlines(address)
       setAddress('')
     }
   }
 
   const handleClickFund = async () => {
-    if ((ether !== '') & (ether !== null)) {
+    if ((ether !== '')) {
       await fundAirline(ether)
-      setRefresh(new Date())
+      setRefreshAirlines(new Date())
       setEther('')
     }
   }
@@ -39,11 +40,11 @@ const AirlineRegistration = ({ airlines, setRefresh }) => {
           </tr>
           {airlines
             ? airlines.map((airline) => (
-                <tr key={airline['address']}>
-                  <td>{airline['address']}</td>
-                  <td>{airline['ether']}</td>
-                </tr>
-              ))
+              <tr key={airline['address']+"_Registration"}>
+                <td>{airline['address']}</td>
+                <td>{airline['ether']}</td>
+              </tr>
+            ))
             : null}
         </Table>
       </td>
@@ -66,20 +67,18 @@ const AirlineRegistration = ({ airlines, setRefresh }) => {
         <button onClick={handleClickRegister}>submit</button>
         <br />
         <br />
-        <button onClick={handleClickFund}>fund</button>
+        <button onClick={handleClickFund}>fund myself</button>
       </td>
     </tr>
   )
 }
 
 const FlightRegistration = ({ flights, setRefreshFlight }) => {
-  const [flight, setFlight] = useState(null)
-  const [timestamp, setTimestamp] = useState(null)
+  const [flight, setFlight] = useState("")
+  const [timestamp, setTimestamp] = useState("")
   const handleClick = async () => {
     if (
-      (flight !== '') &
-      (flight !== null) &
-      ((timestamp !== '') & (timestamp !== null))
+      (flight !== '') & (timestamp !== '')
     ) {
       await addFlight(flight, timestamp)
       setRefreshFlight(new Date())
@@ -96,7 +95,7 @@ const FlightRegistration = ({ flights, setRefreshFlight }) => {
             <th>Flight name</th>
             <th>Status</th>
           </tr>
-          {flights.filter(_flights => _flights.isRegistered==true).map((_flight) => (
+          {flights.filter(_flights => _flights.isRegistered === true).map((_flight) => (
             <tr>
               <td>{_flight['name']}</td>
               <td>{_flight['statusCode']}</td>
@@ -127,9 +126,9 @@ const FlightRegistration = ({ flights, setRefreshFlight }) => {
 }
 
 const FlightCancel = ({ flights, setRefreshFlight }) => {
-  const [flight, setFlight] = useState(null)
+  const [flight, setFlight] = useState("")
   const handleClick = async () => {
-    if ((flight !== '') & (flight !== null)) {
+    if (flight !== '') {
       await removeFlight(flight)
       setFlight('')
       setRefreshFlight(new Date())
@@ -145,16 +144,16 @@ const FlightCancel = ({ flights, setRefreshFlight }) => {
             <th>Flight name</th>
           </tr>
           {
-            flights.filter(_flight => _flight.isRegistered==false).map(
-              _flight => <tr>
-              <td>{_flight.name}</td>
-            </tr>
+            flights.filter(_flight => _flight.isRegistered === false).map(
+              _flight => <tr key={_flight.name+"_cancel"}>
+                <td>{_flight.name}</td>
+              </tr>
             )
           }
         </Table>
       </td>
       <td>
-        <input placeholder="Flight Name." value={flight} onChange={(e) => setFlight(e.target.value)}/>
+        <input placeholder="Flight Name." value={flight} onChange={(e) => setFlight(e.target.value)} />
       </td>
       <td>
         <button onClick={handleClick}>submit</button>
@@ -163,7 +162,15 @@ const FlightCancel = ({ flights, setRefreshFlight }) => {
   )
 }
 
-const InsuranceRepayment = () => {
+const InsuranceRepayment = ({ flights, setRefreshFlight }) => {
+  const [flight, setFlight] = useState("")
+  const handleClick = async () => {
+    if(flight!==""){
+      await repayClient(flight)
+      setRefreshFlight(new Date())
+      setFlight("")
+    }
+  }
   return (
     <tr>
       <td>Insurance Repayment</td>
@@ -173,17 +180,21 @@ const InsuranceRepayment = () => {
             <th>Flight name</th>
             <th>Status</th>
           </tr>
-          <tr>
-            <td>abc234</td>
-            <td>Cancelled</td>
+          {
+            flights.filter(_flight => _flight.repayment==true).map(
+              _flight =>  <tr>
+            <td>{_flight.name}</td>
+            <td>{_flight.statusCode}</td>
           </tr>
+            )
+          }
         </Table>
       </td>
       <td>
-        <input placeholder="Flight Name." />
+        <input value={flight} placeholder="Flight Name." onChange={(e) => setFlight(e.target.value)}/>
       </td>
       <td>
-        <button>submit</button>
+        <button onClick={handleClick}>submit</button>
       </td>
     </tr>
   )

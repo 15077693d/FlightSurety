@@ -26,7 +26,7 @@ function App() {
      <Line/>
      <AirlineTable setRefreshFlight={setRefreshFlight} flights={flights}/>
      <Line/>
-     <PassengersTable/>
+     <PassengersTable setRefreshFlight={setRefreshFlight} flights={flights}/>
     </div>
   );
 }

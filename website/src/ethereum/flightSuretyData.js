@@ -11,7 +11,7 @@ const getOperationStatus = async () => {
 }
 
 const setOperationStatus = async (mode) => {
-    await FlightSuretyData.methods.setOperatingStatus(mode=="true"?true:false).send(
+    await FlightSuretyData.methods.setOperatingStatus(mode==="true"?true:false).send(
         {
             from:await getAccount()
         }

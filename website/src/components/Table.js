@@ -50,18 +50,18 @@ const TableHead = ({ name }) => {
 
 const AirlineTable = ({setRefreshFlight, flights}) => {
     const [airlines, setAirlines] = useState(null)
-    const [refresh, setRefresh] = useState(null)
+    const [refreshAirlines, setRefreshAirlines] = useState(null)
     useEffect(async () => {
         setAirlines(await getAirlines())
-    }, [refresh])
+    }, [refreshAirlines])
     return (
         <Table width="700px" margin="50px" padding="8px">
             <TableHead name={"Airline broad"} />
             <OperationalSetup />
-            <AirlineRegistration airlines={airlines} setRefresh={setRefresh}/>
+            <AirlineRegistration airlines={airlines} setRefreshAirlines={setRefreshAirlines}/>
             <FlightRegistration flights={flights} setRefreshFlight={setRefreshFlight}/>
             <FlightCancel flights={flights} setRefreshFlight={setRefreshFlight}/>
-            <InsuranceRepayment setRefresh={setRefresh}/>
+            <InsuranceRepayment flights={flights} setRefreshFlight={setRefreshFlight}/>
         </Table>
     );
 };
@@ -72,11 +72,11 @@ Passengers
  2. Money Withdraw
  3. check Flight Status
 */
-const PassengersTable = () => {
+const PassengersTable = ({setRefreshFlight, flights}) => {
     return (
         <Table width="700px" margin="50px" padding="8px">
             <TableHead name={"Passenger broad"} />
-            <BuyInsurane />
+            <BuyInsurane setRefreshFlight={setRefreshFlight} flights={flights}/>
             <MoneyWithdraw />
         </Table>
     );

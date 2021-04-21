@@ -32,6 +32,8 @@ contract FlightSuretyApp {
         uint8 statusCode;
         uint256 updatedTimestamp;        
         address airline;
+        bool repayment;
+        uint256 clientCount;
     }
     mapping(string => Flight) private flights;
     string[] public flightNames;
@@ -113,9 +115,14 @@ contract FlightSuretyApp {
 
     function getFlight(string flight)
                             public
-                            returns(bool,uint8,uint256,address)
+                            returns(bool,uint8,uint256,address, bool, uint256)
     {
-        return  (flights[flight].isRegistered,flights[flight].statusCode,flights[flight].updatedTimestamp,flights[flight].airline);
+        return  (flights[flight].isRegistered,
+        flights[flight].statusCode,
+        flights[flight].updatedTimestamp,
+        flights[flight].airline,
+         flights[flight].repayment,
+         flights[flight].clientCount);
     }
 
     function isOperational() 
@@ -129,7 +136,37 @@ contract FlightSuretyApp {
     /********************************************************************************************/
     /*                                     SMART CONTRACT FUNCTIONS                             */
     /********************************************************************************************/
-    
+
+    /**
+    * @dev client buy insurance
+    *
+    */ 
+    function buyInsurance
+                    (    
+                        string flight
+                    )
+                    external
+                    payable
+    {   
+        flightSuretyData.buy.value(msg.value)(flight,  msg.sender);
+        flights[flight].clientCount += 1;
+    }
+
+    /**
+    * @dev repay client
+    *
+    */ 
+    function repayClient
+                    (    
+                        string flight
+                    )
+                    external
+    {   
+        flightSuretyData.pay(flight);
+        flights[flight].repayment = true;
+    }
+  
+
     /**
     * @dev airline add money 
     *
@@ -206,7 +243,9 @@ contract FlightSuretyApp {
                                         true,
                                         STATUS_CODE_UNKNOWN,
                                         updatedTimestamp,       
-                                        msg.sender
+                                        msg.sender,
+                                        false,
+                                        0
                                     );
         flightNames.push(flight);
         flightCount+=1;
