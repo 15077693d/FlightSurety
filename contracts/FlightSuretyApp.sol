@@ -123,20 +123,6 @@ contract FlightSuretyApp {
     }
 
     /**
-    * @dev repay client
-    *
-    */ 
-    function payClient
-                    (    
-                        string flight
-                    )
-                    external
-    {   
-        flightSuretyData.pay(flight);
-    }
-  
-
-    /**
     * @dev airline add money 
     *
     */ 
@@ -192,7 +178,6 @@ contract FlightSuretyApp {
                                 require10Ether
     {   
         flightSuretyData.unsetFlight(flight);
-        flightSuretyData.creditInsurees(flight);
     }
 
 

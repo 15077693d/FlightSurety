@@ -54,16 +54,6 @@ const BuyInsurane = ({ flights, setRefreshFlight }) => {
         setAccount(await getAccount())
     }, [])
     let _flights = [] 
-    flights.forEach(_flight => {
-            let addresses = _flight.clients.map(_client => _client.address)
-            if (addresses.includes(account)) {
-                _flights.push(_flight) 
-            } 
-        })
-       
-    // if(_flights.length>0){
-    //     console.log(_flights[0]['clients'][0]["address"], account)
-    // }
     return (
         <tr>
             <td>
@@ -80,14 +70,7 @@ const BuyInsurane = ({ flights, setRefreshFlight }) => {
                         <th>Status</th>
                     </tr>
                     {
-                        _flights.map(
-                            __flight =>
-                                <tr>
-                                    <td>{__flight["name"]}</td>
-                                    <td>{__flight['clients'].filter(_client => _client["address"] === account)[0]['amount']}</td>
-                                    <td>{__flight["statusCode"]}</td>
-                                </tr>
-                        )
+                      
                     }
                 </Table>
             </td>

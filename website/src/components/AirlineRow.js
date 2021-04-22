@@ -95,7 +95,7 @@ const FlightRegistration = ({ flights, setRefreshFlight }) => {
             <th>Flight name</th>
             <th>Status</th>
           </tr>
-          {flights.filter(_flights => _flights.isRegistered === true).map((_flight) => (
+          {flights.filter(_flights => _flights.statusCode !== "CANCEL").map((_flight) => (
             <tr>
               <td>{_flight['name']}</td>
               <td>{_flight['statusCode']}</td>
@@ -144,7 +144,7 @@ const FlightCancel = ({ flights, setRefreshFlight }) => {
             <th>Flight name</th>
           </tr>
           {
-            flights.filter(_flight => _flight.isRegistered === false).map(
+            flights.filter(_flight => _flight.statusCode ==="CANCEL" ).map(
               _flight => <tr key={_flight.name+"_cancel"}>
                 <td>{_flight.name}</td>
               </tr>

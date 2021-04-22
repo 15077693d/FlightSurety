@@ -1,4 +1,4 @@
-import { getAccount, FlightSuretyApp, web3 } from './web3'
+import { getAccount, FlightSuretyApp, web3, FlightSuretyData } from './web3'
 
 // supplyChain.methods.OrderAmount().call()
 // supplyChain.methods.purchaseMedicine(amount, new Date().getTime(),location).send({from:await getAccount()})
@@ -9,7 +9,6 @@ const registerAirline = async (newAirline) => {
 }
 
 const buyInsurane = async (flight, ether) => {
-    console.log(flight)
     await FlightSuretyApp.methods.buyInsurance(flight).send(
         {
             from: await getAccount(),
@@ -28,29 +27,26 @@ const getFlight = async () => {
         "40": "LATE_TECHNICAL",
         "50": "LATE_OTHER",
     }
-    const count = await FlightSuretyApp.methods.flightCount().call()
+    const count = await FlightSuretyData.methods.flightCount().call()
     const namePromises = []
     for (let i = 0; i < Number(count); i++) {
-        namePromises.push(FlightSuretyApp.methods.flightNames(i).call())
+        namePromises.push(FlightSuretyData.methods.flightNames(i).call())
     }
     const names = await Promise.all(namePromises)
     const flightPromises = []
     for (let i = 0; i < names.length; i++) {
-        flightPromises.push(FlightSuretyApp.methods.getFlight(names[i]).call())
+        flightPromises.push(FlightSuretyData.methods.getFlight(names[i]).call())
     }
     const _flights = await Promise.all(flightPromises)
-    console.log(_flights)
     let flights = []
     for (let i = 0; i < _flights.length; i++) {
         flights.push({
-            isRegistered: _flights[i][0],
-            name: names[i],
-            statusCode: _flights[i][0] === false ? "CANCELLED" : status[_flights[i][1]],
-            updatedTimestamp: _flights[i][2],
-            airline: _flights[i][3],
-            repayment: _flights[i][4],
-            clientCount: _flights[i][5],
-            clients:await getClients(names[i],Number(_flights[i][5]))
+            name:names[i],
+            statusCode: status[_flights[i][0]],
+            updatedTimestamp: _flights[i][1],
+            airline: _flights[i][2],
+            repayment: _flights[i][3],
+            clientCount: _flights[i][4],
         })
     }
     console.log(flights)
@@ -80,11 +76,27 @@ const removeFlight = async (flight) => {
     )
 }
 
-const repayClient = async (flight) => {
-    await FlightSuretyApp.methods.repayClient(flight).send(
-        {
-            from: await getAccount()
-        }
-    )
+const repayClient = async (flight, statusCode) => {
+    // "5":"CANCEL",
+    // "0": "UNKNOWN",
+    // "10": "ON_TIME",
+    // "20": "LATE_AIRLINE",
+    // "30": "LATE_WEATHER",
+    // "40": "LATE_TECHNICAL",
+    // "50": "LATE_OTHER",
+    if(statusCode.includes("LATE")){
+        await FlightSuretyData.methods.pay(flight).send(
+            {
+                from: await getAccount()
+            }
+        )
+    }
+    if(statusCode.includes("CANCEL")){
+        await FlightSuretyData.methods.creditInsurees(flight).send(
+            {
+                from: await getAccount()
+            }
+        )
+    }
 }
-export { buyInsurane, repayClient, registerAirline, fundAirline, getFlight, addFlight, removeFlight, getClients }
+export { buyInsurane, repayClient, registerAirline, fundAirline, getFlight, addFlight, removeFlight }
