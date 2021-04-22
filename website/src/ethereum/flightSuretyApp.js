@@ -1,4 +1,4 @@
-import { getAccount, FlightSuretyApp, web3, FlightSuretyData } from './web3'
+import { getAccount, FlightSuretyApp, web3 } from './web3'
 
 // supplyChain.methods.OrderAmount().call()
 // supplyChain.methods.purchaseMedicine(amount, new Date().getTime(),location).send({from:await getAccount()})
@@ -6,31 +6,6 @@ const registerAirline = async (newAirline) => {
     await FlightSuretyApp.methods.registerAirline(newAirline).send(
         { from: await getAccount() }
     )
-}
-
-const getClients = async (flight, amount) => {
-    let addressPromises = []
-    for (let i = 0; i < Number(amount); i++) {
-        addressPromises.push(
-            FlightSuretyData.methods.getClientByFlight(i, flight).call()
-        )
-    }
-    let addresses = await Promise.all(addressPromises)
-    let amountPromises = []
-    for (let j = 0; j < addresses.length; j++) {
-        amountPromises.push(
-            FlightSuretyData.methods.getClientBuyAmount(flight, addresses[j]).call()
-        )
-    }
-    let amounts = await Promise.all(amountPromises)
-    let clients = []
-    for (let y = 0; y < addresses.length; y++) {
-        clients.push({
-            address: addresses[y],
-            amount: web3.utils.fromWei(amounts[y])
-        })
-    }
-    return clients
 }
 
 const buyInsurane = async (flight, ether) => {
@@ -45,6 +20,7 @@ const buyInsurane = async (flight, ether) => {
 
 const getFlight = async () => {
     const status = {
+        "5":"CANCEL",
         "0": "UNKNOWN",
         "10": "ON_TIME",
         "20": "LATE_AIRLINE",

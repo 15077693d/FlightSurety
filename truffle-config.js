@@ -1,5 +1,6 @@
 var HDWalletProvider = require("truffle-hdwallet-provider");
 var mnemonic = "waste seat civil garage rate scout scrub will reason frequent plastic flag"
+// ganache-cli -a 50 -m "waste seat civil garage rate scout scrub will reason frequent plastic flag" -p 7545 -e 1000000
 
 module.exports = {
   networks: {

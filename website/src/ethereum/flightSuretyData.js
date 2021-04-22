@@ -10,6 +10,27 @@ const getOperationStatus = async () => {
     }
 }
 
+const getClient = async () => {
+    const account =await getAccount()
+    const count = await FlightSuretyData.methods.clientPurchaseCount(account).call()
+    let flightNamesPromises = []
+    let flightAmountsPromises = []
+    for(let i =0; i< Number(count);i++){
+        flightNamesPromises.push(FlightSuretyData.methods.clientPurchases(account, i).call())
+        flightAmountsPromises.push(FlightSuretyData.methods.clientPayments(account, i).call())
+    }
+    const flightNames =  await Promise.all(flightNamesPromises)
+    const flightAmounts =  await Promise.all(flightAmountsPromises)
+    let client = []
+    for(let j = 0; j < flightNames.length; j++){
+        client.push({
+            flightName: flightNames[j],
+            flightAmount: flightAmounts[j]
+        })
+    }
+    return client
+}
+
 const setOperationStatus = async (mode) => {
     await FlightSuretyData.methods.setOperatingStatus(mode==="true"?true:false).send(
         {
@@ -42,4 +63,4 @@ const getAirlines = async () => {
     return airlines
 }
 
-export { getAirlines, getOperationStatus, setOperationStatus }
+export { getAirlines, getClient, getOperationStatus, setOperationStatus }

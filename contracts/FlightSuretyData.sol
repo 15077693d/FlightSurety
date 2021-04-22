@@ -7,19 +7,44 @@ contract FlightSuretyData {
     /********************************************************************************************/
     /*                                       DATA VARIABLES                                     */
     /********************************************************************************************/
+    uint8 private constant STATUS_CODE_CANCEl = 5; 
+    uint8 private constant STATUS_CODE_UNKNOWN = 0;
+    uint8 private constant STATUS_CODE_ON_TIME = 10;
+    uint8 private constant STATUS_CODE_LATE_AIRLINE = 20;
+    uint8 private constant STATUS_CODE_LATE_WEATHER = 30;
+    uint8 private constant STATUS_CODE_LATE_TECHNICAL = 40;
+    uint8 private constant STATUS_CODE_LATE_OTHER = 50;
 
     address private contractOwner;                                      // Account used to deploy contract
     bool private operational = true;                                    // Blocks all state changes throughout the contract if false
+    // airlines
     mapping(address=>bool) public airlines;
     address[] public airlineList;
     uint256 public airlineCount = 0;
-    mapping(string=>address[]) private  clientBuyAddress;
-    mapping(string=>mapping(address=>uint256)) private  clientBuy;
+    mapping(address=>uint256) emptyMapping;
+    
+    // flights
+    struct Flight {
+        uint8 statusCode;
+        uint256 updatedTimestamp;        
+        address airline;
+        bool repayment;
+        mapping(address=>uint256) clientPayments; 
+        uint256 clientCount;
+        address[] clientaddresses;
+    }
+    mapping(string => Flight) private flights;
+    string[] public flightNames;
+    uint8 public flightCount = 0;
+
+    // clients
     mapping(address=>uint256) public clientWithdraw;
+    mapping(address=>uint256) public clientPurchaseCount;
+    mapping(address=> string[]) public clientPurchases;
+    mapping(address=> uint256[]) public clientPayments;    
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
-
 
     /**
     * @dev Constructor
@@ -73,29 +98,8 @@ contract FlightSuretyData {
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
 
-    function getClientByFlight(
-                                
-                                uint256 index,
-                                string flight
-                                )
-                                public
-                                returns(address)
-    {
-        return clientBuyAddress[flight][index];
-    }
-
-    function getClientBuyAmount(
-                                
-                                string flight,
-                                address client
-                                )
-                                public
-                                returns(uint256)
-    {
-        return clientBuy[flight][client];
-    }
-
-    function getContractOwner()
+    // Genranal
+     function getContractOwner()
                                 public 
                                 returns(address)
     {
@@ -114,6 +118,52 @@ contract FlightSuretyData {
     {
         return operational;
     }
+
+    // Flight
+    
+    /**
+     *  @dev Credits payouts to insurees
+    */
+    
+    function unsetFlight(
+                            string flight
+                        )
+    {   
+        flights[flight].statusCode = STATUS_CODE_CANCEl;
+    }
+
+    function setFlight(
+                            uint256 updatedTimestamp,
+                            string flight,
+                            address airline
+                        )
+                        public
+    {
+        address[]  emptyArray;
+        Flight storage newFlight;
+        newFlight.statusCode=STATUS_CODE_UNKNOWN;
+        newFlight.updatedTimestamp=updatedTimestamp;        
+        newFlight.airline=airline;
+        newFlight.repayment=false;
+        newFlight.clientCount=0;
+        flights[flight] = newFlight;
+        flightNames.push(flight);
+        flightCount+=1;
+    }
+
+    function getFlight(string flight)
+                            public
+                            returns(uint8,uint256,address, bool, uint256)
+    {
+        return  (
+        flights[flight].statusCode,
+        flights[flight].updatedTimestamp,
+        flights[flight].airline,
+         flights[flight].repayment,
+         flights[flight].clientCount);
+    }
+
+   
 
 
     /**
@@ -166,8 +216,12 @@ contract FlightSuretyData {
                             payable
     {
         require(msg.value>0 && msg.value<=1 ether,"Payment is not between 0 - 1");
-       clientBuy[flight][client]=msg.value;
-       clientBuyAddress[flight].push(client);
+       flights[flight].clientCount+=1;
+        flights[flight].clientaddresses.push(client);
+       flights[flight].clientPayments[client]=msg.value;
+        clientPurchaseCount[client] += 1;
+        clientPurchases[client].push(flight);
+        clientPayments[client].push(msg.value);
     }
 
     /**
@@ -191,11 +245,12 @@ contract FlightSuretyData {
                                 )
                                 external
     {
-        for(uint256 i=0; i < clientBuyAddress[flight].length ; i++){
-            address clientAddress = clientBuyAddress[flight][i];
-            clientWithdraw[clientAddress]+=clientBuy[flight][clientAddress];
+
+        for(uint256 i=0; i < flights[flight].clientCount ; i++){
+            address clientAddress = flights[flight].clientaddresses[i];
+            clientWithdraw[clientAddress]+= flights[flight].clientPayments[clientAddress];
         }
-        delete clientBuyAddress[flight];
+        flights[flight].repayment = true;
     }
     
 
@@ -209,11 +264,11 @@ contract FlightSuretyData {
                             )
                             external
     {
-         for(uint256 i=0; i < clientBuyAddress[flight].length ; i++){
-            address clientAddress = clientBuyAddress[flight][i];
-            clientWithdraw[clientAddress]+=clientBuy[flight][clientAddress]*3/2;
+        for(uint256 i=0; i < flights[flight].clientCount ; i++){
+            address clientAddress = flights[flight].clientaddresses[i];
+            clientWithdraw[clientAddress]+= flights[flight].clientPayments[clientAddress]*3/2;
         }
-        delete clientBuyAddress[flight];
+        flights[flight].repayment = true;
     }
 
    /**

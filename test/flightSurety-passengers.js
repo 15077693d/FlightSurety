@@ -68,7 +68,7 @@ contract('Flight Surety Tests(passengers)', async (accounts) => {
         // remove flight
         await config.flightSuretyApp.removeFlight("123")
         // repay client
-        await config.flightSuretyApp.repayClient("123")
+        await config.flightSuretyApp.payClient("123")
         // client withdraw
         await config.flightSuretyData.withdraw(airline)
         console.log(await web3.utils.fromWei(await web3.eth.getBalance( airline),"ether"))

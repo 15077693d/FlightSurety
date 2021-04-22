@@ -16,30 +16,12 @@ contract FlightSuretyApp {
     /********************************************************************************************/
 
     // Flight status codees
-    uint8 private constant STATUS_CODE_UNKNOWN = 0;
-    uint8 private constant STATUS_CODE_ON_TIME = 10;
-    uint8 private constant STATUS_CODE_LATE_AIRLINE = 20;
-    uint8 private constant STATUS_CODE_LATE_WEATHER = 30;
-    uint8 private constant STATUS_CODE_LATE_TECHNICAL = 40;
-    uint8 private constant STATUS_CODE_LATE_OTHER = 50;
     mapping(address=>uint256) public registratingAirlinesVoteCount;
     mapping(address=>uint256) public registratedAirlinesEther;
     mapping(address=>mapping(address=>bool)) public registratingAirlinesVoteAddress;
     address private contractOwner;          // Account used to deploy contract
     FlightSuretyData private flightSuretyData;
-    struct Flight {
-        bool isRegistered;
-        uint8 statusCode;
-        uint256 updatedTimestamp;        
-        address airline;
-        bool repayment;
-        uint256 clientCount;
-        address[] clientAddresses;
-        uint256[] clientPyaments;
-    }
-    mapping(string => Flight) private flights;
-    string[] public flightNames;
-    uint8 public flightCount = 0;
+
 
  
     /********************************************************************************************/
@@ -103,7 +85,6 @@ contract FlightSuretyApp {
                                     address dataAddress,
                                     address airlineAddress
                                 ) 
-                                payable
                                 public 
     {
         flightSuretyData = FlightSuretyData(dataAddress);
@@ -114,18 +95,6 @@ contract FlightSuretyApp {
     /********************************************************************************************/
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
-
-    function getFlight(string flight)
-                            public
-                            returns(bool,uint8,uint256,address, bool, uint256)
-    {
-        return  (flights[flight].isRegistered,
-        flights[flight].statusCode,
-        flights[flight].updatedTimestamp,
-        flights[flight].airline,
-         flights[flight].repayment,
-         flights[flight].clientCount);
-    }
 
     function isOperational() 
                             public 
@@ -151,21 +120,19 @@ contract FlightSuretyApp {
                     payable
     {   
         flightSuretyData.buy.value(msg.value)(flight,  msg.sender);
-        flights[flight].clientCount += 1;
     }
 
     /**
     * @dev repay client
     *
     */ 
-    function repayClient
+    function payClient
                     (    
                         string flight
                     )
                     external
     {   
         flightSuretyData.pay(flight);
-        flights[flight].repayment = true;
     }
   
 
@@ -224,7 +191,7 @@ contract FlightSuretyApp {
                                 external
                                 require10Ether
     {   
-        flights[flight].isRegistered =false;
+        flightSuretyData.unsetFlight(flight);
         flightSuretyData.creditInsurees(flight);
     }
 
@@ -241,19 +208,11 @@ contract FlightSuretyApp {
                                 external
                                 require10Ether
     {   
-        uint256[] zeroArray;
-        flights[flight] = Flight(
-                                        true,
-                                        STATUS_CODE_UNKNOWN,
-                                        updatedTimestamp,       
-                                        msg.sender,
-                                        false,
-                                        0,
-                                        zeroArray,
-                                        zeroArray
+        flightSuretyData.setFlight(
+                                    updatedTimestamp,
+                                    flight,
+                                    msg.sender
                                     );
-        flightNames.push(flight);
-        flightCount+=1;
     }
     
    /**
