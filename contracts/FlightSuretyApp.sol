@@ -34,6 +34,8 @@ contract FlightSuretyApp {
         address airline;
         bool repayment;
         uint256 clientCount;
+        address[] clientAddresses;
+        uint256[] clientPyaments;
     }
     mapping(string => Flight) private flights;
     string[] public flightNames;
@@ -239,13 +241,16 @@ contract FlightSuretyApp {
                                 external
                                 require10Ether
     {   
+        uint256[] zeroArray;
         flights[flight] = Flight(
                                         true,
                                         STATUS_CODE_UNKNOWN,
                                         updatedTimestamp,       
                                         msg.sender,
                                         false,
-                                        0
+                                        0,
+                                        zeroArray,
+                                        zeroArray
                                     );
         flightNames.push(flight);
         flightCount+=1;

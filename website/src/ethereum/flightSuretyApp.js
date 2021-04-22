@@ -99,7 +99,7 @@ const fundAirline = async (ether) => {
 const removeFlight = async (flight) => {
     await FlightSuretyApp.methods.removeFlight(flight).send(
         {
-            from: await getAccount(),
+            from: await getAccount()
         }
     )
 }
@@ -107,7 +107,7 @@ const removeFlight = async (flight) => {
 const repayClient = async (flight) => {
     await FlightSuretyApp.methods.repayClient(flight).send(
         {
-            from: await getAccount(),
+            from: await getAccount()
         }
     )
 }

@@ -56,13 +56,11 @@ const BuyInsurane = ({ flights, setRefreshFlight }) => {
     let _flights = [] 
     flights.forEach(_flight => {
             let addresses = _flight.clients.map(_client => _client.address)
-            console.log(addresses)
             if (addresses.includes(account)) {
                 _flights.push(_flight) 
             } 
         })
        
-    console.log(_flights, account)
     // if(_flights.length>0){
     //     console.log(_flights[0]['clients'][0]["address"], account)
     // }

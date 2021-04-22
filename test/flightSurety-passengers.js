@@ -48,4 +48,29 @@ contract('Flight Surety Tests(passengers)', async (accounts) => {
         // let actual = last.toNumber() - first.toNumber()
         //assert.equal(actual,100000000*1.5)
     })
+
+    it("flight register and cancel and repay passenger and withdraw...", async () => {
+        let airline = accounts[0]
+        // add fund
+        console.log(await web3.utils.toWei("10","ether"),"oscar!!!")
+        await config.flightSuretyApp.addEther({
+            from:airline,
+            value:await web3.utils.toWei("10","ether")
+        }) 
+        // reg flight
+        await config.flightSuretyApp.registerFlight(1,"123")
+        // buy insurance
+        await config.flightSuretyApp.buyInsurance("123",{
+            from:airline,
+            value:await web3.utils.toWei("1","ether")
+        })
+        console.log(await web3.utils.fromWei(await web3.eth.getBalance( airline),"ether"))
+        // remove flight
+        await config.flightSuretyApp.removeFlight("123")
+        // repay client
+        await config.flightSuretyApp.repayClient("123")
+        // client withdraw
+        await config.flightSuretyData.withdraw(airline)
+        console.log(await web3.utils.fromWei(await web3.eth.getBalance( airline),"ether"))
+    })
 })
