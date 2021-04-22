@@ -10,6 +10,7 @@ To install, download or clone the repo, then:
 
 `npm install`
 `truffle compile`
+`cd ./website npm install`
 
 ## Develop Client
 
@@ -21,22 +22,14 @@ To run truffle tests:
 
 To use the dapp:
 
-`truffle migrate`
-`npm run dapp`
+`truffle migrate --reset`
+`cd ./website npm run start`
 
 To view dapp:
 
 `http://localhost:8000`
 
 ## Develop Server
-
-`npm run server`
-`truffle test ./test/oracles.js`
-
-## Deploy
-
-To build dapp for prod:
-`npm run dapp:prod`
 
 Deploy the contents of the ./dapp folder
 

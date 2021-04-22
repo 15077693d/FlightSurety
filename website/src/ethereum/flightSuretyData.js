@@ -21,14 +21,15 @@ const getClient = async () => {
     }
     const flightNames =  await Promise.all(flightNamesPromises)
     const flightAmounts =  await Promise.all(flightAmountsPromises)
-    let client = []
+    let purchases = []
     for(let j = 0; j < flightNames.length; j++){
-        client.push({
+        purchases.push({
             flightName: flightNames[j],
-            flightAmount: flightAmounts[j]
+            flightAmount: web3.utils.fromWei(flightAmounts[j], 'ether')
         })
     }
-    return client
+    const withdraw = web3.utils.fromWei(await FlightSuretyData.methods.clientWithdraw(account).call(),'ether')
+    return {withdraw,purchases}
 }
 
 const setOperationStatus = async (mode) => {
@@ -63,4 +64,10 @@ const getAirlines = async () => {
     return airlines
 }
 
-export { getAirlines, getClient, getOperationStatus, setOperationStatus }
+const withdraw = async () => {
+    const account =await getAccount()
+    await FlightSuretyData.methods.withdraw(account).send( {
+        from: account
+    })
+}
+export {withdraw, getAirlines, getClient, getOperationStatus, setOperationStatus }

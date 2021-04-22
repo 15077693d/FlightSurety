@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components'
 import { OperationalSetup, AirlineRegistration, FlightRegistration, FlightCancel, InsuranceRepayment } from './AirlineRow';
 import { BuyInsurane, MoneyWithdraw } from './PassengersRow';
-import {getAirlines} from '../ethereum/flightSuretyData'
+import {getAirlines, getClient} from '../ethereum/flightSuretyData'
 
 const Table = styled.table`
     margin:auto;
@@ -48,7 +48,7 @@ const TableHead = ({ name }) => {
     );
 };
 
-const AirlineTable = ({setRefreshFlight, flights}) => {
+const AirlineTable = ({setRefreshWithdraw,setRefreshFlight, flights}) => {
     const [airlines, setAirlines] = useState(null)
     const [refreshAirlines, setRefreshAirlines] = useState(null)
     useEffect(async () => {
@@ -61,7 +61,7 @@ const AirlineTable = ({setRefreshFlight, flights}) => {
             <AirlineRegistration airlines={airlines} setRefreshAirlines={setRefreshAirlines}/>
             <FlightRegistration flights={flights} setRefreshFlight={setRefreshFlight}/>
             <FlightCancel flights={flights} setRefreshFlight={setRefreshFlight}/>
-            <InsuranceRepayment flights={flights} setRefreshFlight={setRefreshFlight}/>
+            <InsuranceRepayment setRefreshWithdraw={setRefreshWithdraw} flights={flights} setRefreshFlight={setRefreshFlight}/>
         </Table>
     );
 };
@@ -72,12 +72,16 @@ Passengers
  2. Money Withdraw
  3. check Flight Status
 */
-const PassengersTable = ({setRefreshFlight, flights}) => {
+const PassengersTable = ({refreshWithdraw, setRefreshWithdraw, flights}) => {
+    const [client, setClient] = useState({purchases:[],withdraw:"na"})
+    useEffect(async () => {
+        setClient(await getClient())
+    }, [refreshWithdraw])
     return (
         <Table width="700px" margin="50px" padding="8px">
             <TableHead name={"Passenger broad"} />
-            <BuyInsurane setRefreshFlight={setRefreshFlight} flights={flights}/>
-            <MoneyWithdraw />
+            <BuyInsurane client={client}  setRefreshWithdraw={setRefreshWithdraw} flights={flights}/>
+            <MoneyWithdraw client={client} refreshWithdraw={refreshWithdraw} setRefreshWithdraw={setRefreshWithdraw}/>
         </Table>
     );
 };

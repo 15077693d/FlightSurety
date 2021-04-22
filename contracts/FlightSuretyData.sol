@@ -234,6 +234,7 @@ contract FlightSuretyData {
                                 external
     {
         client.transfer(clientWithdraw[client]);
+        clientWithdraw[client] = 0;
     }
     
     /**

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { buyInsurane } from '../ethereum/flightSuretyApp';
-import { getAccount } from '../ethereum/web3';
 import { Table } from './Table';
+import {withdraw} from '../ethereum/flightSuretyData'
 /*
 Passengers
  1.PassengersBuy insurance (Insurance Purchase)
@@ -15,7 +15,11 @@ LATE_OTHER = 50;
  2. Money Withdraw
 */
 
-const MoneyWithdraw = () => {
+const MoneyWithdraw = ({client, setRefreshWithdraw}) => {
+    const handleClick = async () => {
+        await withdraw()
+        await setRefreshWithdraw()
+    }
     return (
         <tr>
             <td>
@@ -25,35 +29,31 @@ const MoneyWithdraw = () => {
                 Available withdraw:
             <br />
                 <br />
-            0 ether
+            {client.withdraw} ether
         </td>
             <td>
                 You can only withdraw all amount...
         </td>
             <td>
-                <button>
+                <button onClick={handleClick}>
                     withdraw
         </button>
             </td>
         </tr>)
 }
 
-const BuyInsurane = ({ flights, setRefreshFlight }) => {
+const BuyInsurane = ({ client, flights, setRefreshWithdraw }) => {
     const [flight, setFlight] = useState("")
     const [ether, setEther] = useState("")
-    const [account, setAccount] = useState(null)
     const handleClick = async () => {
         if (flight !== "" & ether !== "") {
             await buyInsurane(flight, ether)
             setFlight("")
             setEther("")
-            setRefreshFlight(new Date())
+            setRefreshWithdraw(new Date())
         }
     }
-    useEffect(async () => {
-        setAccount(await getAccount())
-    }, [])
-    let _flights = [] 
+    console.log(client,flights)
     return (
         <tr>
             <td>
@@ -70,7 +70,14 @@ const BuyInsurane = ({ flights, setRefreshFlight }) => {
                         <th>Status</th>
                     </tr>
                     {
-                      
+                        client.purchases.map(
+                            _flight => 
+                                <tr>
+                        <td>{_flight.flightName}</td>
+                        <td>{_flight.flightAmount}</td>
+                        <td>{flights.filter(__flight => __flight.name==_flight.flightName)[0].statusCode}</td>
+                    </tr>
+                        )
                     }
                 </Table>
             </td>
@@ -79,7 +86,7 @@ const BuyInsurane = ({ flights, setRefreshFlight }) => {
         <select onChange={(e) => setFlight(e.target.value)}>
                     <option value="">Available flight</option>
                     {
-                        flights.filter(_flight => _flight["isRegistered"] === true & _flight["statusCode"] == "UNKNOWN" & _flight["repayment"] === false).map(
+                        flights.filter(_flight => _flight["statusCode"] == "UNKNOWN" & _flight["repayment"] === false).map(
                             _flight => <option key={_flight.name} value={_flight.name}>{_flight.name}</option>
                         )
                     }

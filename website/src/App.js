@@ -17,6 +17,7 @@ Passengers
 function App() {
   const [flights, setFlights] = useState([])
   const [refreshFlight, setRefreshFlight] = useState(null)
+  const [refreshWithdraw,setRefreshWithdraw] = useState(null)
   useEffect(async () => {
     setFlights(await getFlight())
   }, [refreshFlight])
@@ -24,9 +25,9 @@ function App() {
     <div className="App">
      <h1 style={{textAlign:"center"}}>FlightSurety</h1>
      <Line/>
-     <AirlineTable setRefreshFlight={setRefreshFlight} flights={flights}/>
+     <AirlineTable setRefreshWithdraw={setRefreshWithdraw} setRefreshFlight={setRefreshFlight} flights={flights}/>
      <Line/>
-     <PassengersTable setRefreshFlight={setRefreshFlight} flights={flights}/>
+     <PassengersTable refreshWithdraw={refreshWithdraw} setRefreshWithdraw={setRefreshWithdraw} setRefreshFlight={setRefreshFlight} flights={flights}/>
     </div>
   );
 }

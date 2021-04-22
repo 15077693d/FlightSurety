@@ -162,12 +162,14 @@ const FlightCancel = ({ flights, setRefreshFlight }) => {
   )
 }
 
-const InsuranceRepayment = ({ flights, setRefreshFlight }) => {
+const InsuranceRepayment = ({setRefreshWithdraw, flights, setRefreshFlight }) => {
   const [flight, setFlight] = useState("")
   const handleClick = async () => {
     if(flight!==""){
-      await repayClient(flight)
+      await repayClient(flight, 
+        flights.filter(_flight => _flight.name==flight)[0].statusCode)
       setRefreshFlight(new Date())
+      setRefreshWithdraw(new Date())
       setFlight("")
     }
   }
