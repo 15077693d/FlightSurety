@@ -23,6 +23,7 @@ To run truffle tests:
 To use the dapp:
 
 `truffle migrate --reset`
+`change addresses on ~/website/src/ethereum/web3.js`
 `cd ./website`
 `npm run start`
 
@@ -35,7 +36,8 @@ To view dapp:
 Deploy the contents of the ./dapp folder
 
 `cd .\server`
-`node --experimental-json-modules app.js`
+`change address on ~/server/ethereum/web3.js`
+`node --experimental-json-modules --experimental-modules app.js`
 
 ## Resources
 

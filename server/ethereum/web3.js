@@ -2,7 +2,7 @@ import Web3 from 'web3'
 import FlightSuretyAppJson from './contracts/FlightSuretyApp.json'
 let web3;
 
-let flightSuretyAppAddress = "0xEBC1c844cfd895510116a5898959EEE6d1B7c213"
+let flightSuretyAppAddress = "0x153D02110972190C6a3164bBe6dE0e309809Fa85"
 const provider = new Web3.providers.HttpProvider(
     "http://localhost:7545/"
 );
@@ -15,7 +15,7 @@ const registerOracle = async (address) => {
         {
             from: address,
             value: web3.utils.toWei(REGISTRATION_FEE, 'ether'),
-            gas:3000000
+            gas: 3000000
         }
     )
 }
@@ -28,12 +28,12 @@ const getMyIndexes = async (address) => {
     )
 }
 
-const submitOracleResponse = async ({index,
+const submitOracleResponse = async ({ index,
     airline,
     flight,
     timestamp,
     statusCode,
-    address}) => {
+    address }) => {
     await FlightSuretyApp.methods.submitOracleResponse(
         index,
         airline,
@@ -49,11 +49,28 @@ const submitOracleResponse = async ({index,
 
 const registerOracles = async () => {
     const accounts = await web3.eth.getAccounts()
-    for (let i = 0; i<2; i++){
+    for (let i = 0; i < 2; i++) {
         await registerOracle(accounts[i])
         console.log(`${accounts[i]} register oracles...`)
     }
 }
 
-export { web3, FlightSuretyApp, getMyIndexes, submitOracleResponse ,registerOracles }
+const fetchFlightStatus = async ({airline,
+    flight,
+    timestamp,address}) => {
+        console.log(airline,
+            flight,
+            timestamp,)
+    return await FlightSuretyApp.methods.fetchFlightStatus(
+        airline,
+        flight,
+        timestamp
+    ).send(
+        {
+            from: address
+        }
+    )
+}
+
+export { fetchFlightStatus, getMyIndexes, submitOracleResponse, registerOracles }
 
