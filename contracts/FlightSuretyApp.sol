@@ -207,13 +207,13 @@ contract FlightSuretyApp {
     function processFlightStatus
                                 (
                                     address airline,
-                                    string memory flight,
+                                    string  flight,
                                     uint256 timestamp,
                                     uint8 statusCode
                                 )
                                 internal
     {
-        
+        flightSuretyData.updateFlight( flight, timestamp, statusCode );
     }
 
 

@@ -23,7 +23,8 @@ To run truffle tests:
 To use the dapp:
 
 `truffle migrate --reset`
-`cd ./website npm run start`
+`cd ./website`
+`npm run start`
 
 To view dapp:
 
@@ -33,6 +34,8 @@ To view dapp:
 
 Deploy the contents of the ./dapp folder
 
+`cd .\server`
+`node --experimental-json-modules app.js`
 
 ## Resources
 

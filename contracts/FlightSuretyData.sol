@@ -120,9 +120,23 @@ contract FlightSuretyData {
     }
 
     // Flight
-    
+
     /**
-     *  @dev Credits payouts to insurees
+     *  @dev update fligth
+    */
+
+    function updateFlight(
+                            string  flight,
+                            uint256 timestamp,
+                            uint8 statusCode
+                        )
+    {
+        flights[flight].updatedTimestamp = timestamp;
+        flights[flight].statusCode = statusCode;
+    }
+
+    /**
+     *  @dev cancel flight
     */
     
     function unsetFlight(
