@@ -14,7 +14,7 @@ contract('Flight Surety Tests(airlines)', async (accounts) => {
     /* Operations and Settings                                                              */
     /****************************************************************************************/
 
-    it(`(multiparty) has correct initial isOperational() value`, async function () {
+    it(`(multiparty) has correct initial isOpeNumberrational() value`, async function () {
 
         // Get operating status
         let status = await config.flightSuretyData.isOperational.call();
