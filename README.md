@@ -5,10 +5,10 @@ FlightSurety is a sample application project for Udacity's Blockchain course.
 ## Website
 
 ### Airline board
-![alt text](https://github.com/15077693d/Blockchain-Capstone/blob/master/images/RE-deployment.png?raw=true)
+![alt text](https://github.com/15077693d/FlightSurety/blob/master/readme-image/flightsurety1.png?raw=true)
 
 ### Client board
-![alt text](https://github.com/15077693d/Blockchain-Capstone/blob/master/images/RE-deployment.png?raw=true)
+![alt text](https://github.com/15077693d/FlightSurety/blob/master/readme-image/flightsurety2.png?raw=true)
 
 ## Install
 
